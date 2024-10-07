@@ -1,15 +1,17 @@
 package com.aelmrabti.productapi.service.impl;
 
 import com.aelmrabti.productapi.entity.ProductEntity;
+import com.aelmrabti.productapi.infrastrecture.exception.PatchException;
 import com.aelmrabti.productapi.infrastrecture.exception.ResourceNotFoundException;
 import com.aelmrabti.productapi.jpa.ProductRepository;
-import com.aelmrabti.productapi.mapper.ProductMapper;
 import com.aelmrabti.productapi.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Field;
+import java.util.Objects;
 import java.util.Optional;
 
 
@@ -18,8 +20,6 @@ import java.util.Optional;
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
-    private final ProductMapper productMapper;
-
     private static final Integer DEFAULT_PAGE = 0;
     private static final Integer DEFAULT_SIZE = 100;
 
@@ -49,9 +49,27 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductEntity partialUpdate(Long id, ProductEntity product) {
-        final ProductEntity retrievedProduct = this.get(id);
-        final ProductEntity updatedProduct = productMapper.doUpdate(product, retrievedProduct);
-        return productRepository.save(updatedProduct);
+        ProductEntity retrievedProduct = this.get(id);
+        try {
+            applyPatch(product, retrievedProduct);
+        } catch (Exception e) {
+            throw new PatchException("Failed to apply patch due to access issues", e.getCause());
+        }
+        return productRepository.save(retrievedProduct);
+    }
+
+    void applyPatch(ProductEntity source, ProductEntity target) throws IllegalAccessException {
+        Class<?> clazz = ProductEntity.class;
+        final Field[] fields = clazz.getDeclaredFields();
+        for (Field field : fields) {
+            field.setAccessible(true);
+            final Object fieldVal = field.get(source);
+            if (Objects.nonNull(fieldVal)) {
+                field.set(target, fieldVal);
+            }
+
+            field.setAccessible(false);
+        }
     }
 
     @Override
