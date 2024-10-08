@@ -1,5 +1,6 @@
 package com.aelmrabti.productapi.web.controller;
 
+import com.aelmrabti.productapi.dto.PatchRequest;
 import com.aelmrabti.productapi.dto.ProductRequest;
 import com.aelmrabti.productapi.dto.ProductResponse;
 import com.aelmrabti.productapi.entity.ProductEntity;
@@ -34,7 +35,7 @@ public class ProductController implements ProductApi {
     }
 
     @Override
-    public ProductResponse partialUpdate(Long id, ProductRequest request) {
+    public ProductResponse partialUpdate(Long id, PatchRequest request) {
         ProductEntity product = productMapper.toEntity(request);
         return productMapper.toResponse(productService.partialUpdate(id, product));
     }

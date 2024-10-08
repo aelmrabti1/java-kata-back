@@ -1,14 +1,17 @@
 package com.aelmrabti.productapi.web.api;
 
 
+import com.aelmrabti.productapi.dto.PatchRequest;
 import com.aelmrabti.productapi.dto.ProductRequest;
 import com.aelmrabti.productapi.dto.ProductResponse;
+import com.aelmrabti.productapi.infrastrecture.model.ErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -43,8 +46,10 @@ public interface ProductApi {
             @ApiResponse(responseCode = "200", description = "Product found",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ProductResponse.class))),
-            @ApiResponse(responseCode = "404", description = "Product not found"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
+            @ApiResponse(responseCode = "404", description = "Product not found", content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
@@ -53,8 +58,10 @@ public interface ProductApi {
     @Operation(summary = "Delete product", description = "Delete a product by its ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Product deleted successfully"),
-            @ApiResponse(responseCode = "404", description = "Product not found"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
+            @ApiResponse(responseCode = "404", description = "Product not found", content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ErrorResponse.class)))
     })
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
@@ -66,12 +73,14 @@ public interface ProductApi {
             @ApiResponse(responseCode = "200", description = "Product updated successfully",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ProductResponse.class))),
-            @ApiResponse(responseCode = "404", description = "Product not found"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
+            @ApiResponse(responseCode = "404", description = "Product not found", content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PatchMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    ProductResponse partialUpdate(@PathVariable("id") Long id, @RequestBody ProductRequest request);
+    ProductResponse partialUpdate(@PathVariable("id") Long id, @RequestBody @Valid PatchRequest request);
 
 
     @Operation(summary = "Create new product", description = "Create a new product with full details")
@@ -79,11 +88,13 @@ public interface ProductApi {
             @ApiResponse(responseCode = "201", description = "Product created successfully",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ProductResponse.class))),
-            @ApiResponse(responseCode = "400", description = "Invalid request body"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
+            @ApiResponse(responseCode = "400", description = "Invalid request body", content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error", content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    ProductResponse create(@RequestBody ProductRequest request);
+    ProductResponse create(@RequestBody @Valid ProductRequest request);
 
 }
